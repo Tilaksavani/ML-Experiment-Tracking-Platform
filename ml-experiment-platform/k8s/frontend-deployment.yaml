@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlhub-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mlhub-frontend
+  template:
+    metadata:
+      labels:
+        app: mlhub-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: mlhub-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5173
+          env:
+            - name: VITE_API_URL
+              value: http://localhost:8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlhub-frontend
+spec:
+  selector:
+    app: mlhub-frontend
+  ports:
+    - port: 5173
+      targetPort: 5173
+  type: NodePort

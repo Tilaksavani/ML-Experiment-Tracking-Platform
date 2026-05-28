@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mlhub-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: mlhub-backend
+  template:
+    metadata:
+      labels:
+        app: mlhub-backend
+    spec:
+      containers:
+        - name: backend
+          image: mlhub-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              value: sqlite:///./storage/mlhub.db
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mlhub-backend
+spec:
+  selector:
+    app: mlhub-backend
+  ports:
+    - port: 8000
+      targetPort: 8000
+  type: ClusterIP
